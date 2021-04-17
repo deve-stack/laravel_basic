@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 // import the storage facade
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -51,23 +52,38 @@ class AuthController extends Controller
         }
     }
 
-    public function register(Request $request)
-    {
-        
-        $pin = rand ( 100000 , 999999 );
 
-        $user   = User::create([
-            'name'      => $request->username,
-            'username'  => $request->username,
-            'email'     => $request->email,
-            'password'  => Hash::make($request->password),
-            'pin'       => $pin
+    /**
+     * Register user.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function register(Request $request, $email)
+    {
+        // Validation on request data
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|unique:users,username|min:4|max:20',
+            'password' => 'required'
         ]);
 
-        // Save pin into DB
-        $this->sendOTPemail($user, $pin);
-        return response()->json(['msg' => 'Pin code has been sent in the email. Please use that for the completion of the registration', 'status'=>100]);
+        if ($validator->fails()) {
+            return response()->json($validator->messages());            
+        } else {
+    
+            $pin = rand ( 100000 , 999999 );
 
+            $user   = User::create([
+                'name'      => $request->username,
+                'username'  => $request->username,
+                'email'     => $request->email,
+                'password'  => Hash::make($request->password),
+                'pin'       => $pin
+            ]);
+
+            // Save pin into DB
+            $this->sendOTPemail($user, $pin);
+            return response()->json(['msg' => 'Pin code has been sent in the email. Please use that for the completion of the registration', 'status'=>100]);
+        }
     }
 
     public function sendOTPemail($user, $pin){
