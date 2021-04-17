@@ -108,7 +108,7 @@ class AuthController extends Controller
     {
       // Get the currently authenticated user...
 
-        if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
+        if(Auth::attempt(['email' => request('email'), 'password' => request('password'), 'status' =>1])){
            $user = Auth::user();
            // echo "<pre>";print_r($user);die('success');
            $data['token']  = $this->update($user->id);
