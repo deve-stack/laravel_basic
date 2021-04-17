@@ -16,7 +16,7 @@ class UserController extends Controller
     	// die('success');
     	if($request->input('email')){
     		$email = $request->input('email');
-    		$data = array('email'=> $email, 'link' => URL::to('/api/create_user/'.$email));
+    		$data = array('email'=> $email, 'link' => URL::to('/api/createuser/'.$email));
    
 	      	Mail::send('mail', $data, function($message) use ($email) {
 	         	$message->to($email, 'Start Register')->subject('Create your username and password.');
