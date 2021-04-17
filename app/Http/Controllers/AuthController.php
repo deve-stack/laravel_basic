@@ -71,18 +71,25 @@ class AuthController extends Controller
         } else {
     
             $pin = rand ( 100000 , 999999 );
+            if(empty($request->email)){
+                return response()->json(['msg' => 'Please provide email.', 'status'=>101]);
+            }else{
+                if(!User::where('email', $request->email)->first()){
+                    $user   = User::create([
+                        'name'      => $request->username,
+                        'username'  => $request->username,
+                        'email'     => $request->email,
+                        'password'  => Hash::make($request->password),
+                        'pin'       => $pin
+                    ]);
 
-            $user   = User::create([
-                'name'      => $request->username,
-                'username'  => $request->username,
-                'email'     => $request->email,
-                'password'  => Hash::make($request->password),
-                'pin'       => $pin
-            ]);
-
-            // Save pin into DB
-            $this->sendOTPemail($user, $pin);
-            return response()->json(['msg' => 'Pin code has been sent in the email. Please use that for the completion of the registration', 'status'=>100]);
+                    // Save pin into DB
+                    $this->sendOTPemail($user, $pin);
+                    return response()->json(['msg' => 'Pin code has been sent in the email. Please use that for the completion of the registration', 'status'=>100]);
+                }else{
+                    return response()->json(['msg' => 'Email already exists.', 'status'=>101]);
+                }                
+            }            
         }
     }
 
